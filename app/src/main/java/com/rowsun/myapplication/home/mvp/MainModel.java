@@ -1,5 +1,6 @@
 package com.rowsun.myapplication.home.mvp;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.rowsun.myapplication.pojo.Hello;
@@ -11,19 +12,29 @@ public class MainModel implements MainMvp.MainModel {
     public void getData(final OnFinishedListener listener) {
         h = new Hello(1, "Hello MVP");
         Log.d("TAG", "getData: ");
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(3000);
-                    Log.d("TAG", "inside thread");
+       new AsyncTask<Void, Void, String>(){
 
-                    listener.onSuccess(h.getText());
-                } catch (InterruptedException e) {
-                    listener.onFailure(h.getText());
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+           @Override
+           protected String doInBackground(Void... voids) {
+               try {
+                   Thread.sleep(1000);
+               } catch (InterruptedException e) {
+                   e.printStackTrace();
+
+               }
+               return h.getText();
+           }
+
+           @Override
+           protected void onPostExecute(String s) {
+               super.onPostExecute(s);
+               if (s.isEmpty()){
+                   listener.onFailure("Something went wrong");
+               }else {
+
+                   listener.onSuccess(s);
+               }
+           }
+       }.execute();
     }
 }
